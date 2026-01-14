@@ -41,8 +41,8 @@ def handle_connection(connection: socket):
                 return
 
             print(f"Replying to remote: {remote_name}")
-    except Exception:
-        raise
+    except Exception as e:
+        print(f"Thread exception: {e}")
     finally:
         connection.close()
 
