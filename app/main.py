@@ -2,6 +2,7 @@ import socket  # noqa: F401
 
 from concurrent.futures import ThreadPoolExecutor
 
+storage = {}
 
 def handle_connection(connection: socket):
     try:
@@ -37,6 +38,11 @@ def handle_connection(connection: socket):
                 connection.sendall(response.encode())
             elif command == b"COMMAND":
                 connection.sendall(b"*0\r\n")
+            elif command == b"SET":
+                _, var_name, var_value = parsed_command
+                global storage
+                storage[var_name] = var_value
+                connection.sendall(b"+OK\r\n")
             else:
                 return
 
