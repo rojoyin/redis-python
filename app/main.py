@@ -40,9 +40,18 @@ def handle_connection(connection: socket):
                 connection.sendall(b"*0\r\n")
             elif command == b"SET":
                 _, var_name, var_value = parsed_command
-                global storage
                 storage[var_name] = var_value
                 connection.sendall(b"+OK\r\n")
+            elif command == b"GET":
+                _, var_name = parsed_command
+                value = storage.get(var_name)
+
+                if value is not None:
+                    response = f"${len(value)}\r\n{value.decode('utf-8')}\r\n"
+                else:
+                    response = "$-1\r\n"
+
+                connection.sendall(response.encode())
             else:
                 return
 
