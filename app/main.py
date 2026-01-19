@@ -1,4 +1,5 @@
 import socket  # noqa: F401
+import threading
 
 from concurrent.futures import ThreadPoolExecutor
 
@@ -39,7 +40,24 @@ def handle_connection(connection: socket):
             elif command == b"COMMAND":
                 connection.sendall(b"*0\r\n")
             elif command == b"SET":
-                _, var_name, var_value = parsed_command
+                var_name, var_value = parsed_command[1], parsed_command[2]
+                parsed_command = [v.lower() for v in parsed_command]
+
+                parse_as_milliseconds = False
+
+                if len(parsed_command) > 3:
+                    if b"px" in parsed_command:
+                        ttl_flag_index = parsed_command.index(b"px")
+                        parse_as_milliseconds = True
+                    elif b"ex" in parsed_command:
+                        ttl_flag_index = parsed_command.index(b"ex")
+                    else:
+                        raise Exception(f"Unsupported option for {command}")
+
+                    val = int(parsed_command[ttl_flag_index + 1])
+                    ttl_value = val if not parse_as_milliseconds else val / 1000
+                    threading.Timer(ttl_value, storage.pop, args=[var_name]).start()
+
                 storage[var_name] = var_value
                 connection.sendall(b"+OK\r\n")
             elif command == b"GET":
