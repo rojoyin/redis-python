@@ -5,7 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 storage = {}
 
-def handle_connection(connection: socket):
+def handle_connection(connection: socket.socket):
     try:
         remote_name = connection.getpeername()
         print(f"New connection created, remote: {remote_name}")
