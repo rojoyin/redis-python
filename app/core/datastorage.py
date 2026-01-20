@@ -15,3 +15,6 @@ class DataStorage:
 
     def get(self, key: bytes) -> bytes | None:
         return self.data.get(key)
+
+    def delete_key(self, key: bytes) -> None:
+        del self.data[key]
