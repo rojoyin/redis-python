@@ -1,11 +1,11 @@
 import threading
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass
 class DataStorage:
-    data: dict[bytes, bytes]
+    data: dict[bytes, bytes] = field(default_factory=dict)
 
     def set(self, key: bytes, value: bytes, ttl_milliseconds: int | None) -> None:
         if ttl_milliseconds is not None:
