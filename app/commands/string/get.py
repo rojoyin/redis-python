@@ -16,5 +16,4 @@ class Handler(CommandHandler):
         else:
             response = "$-1\r\n"
 
-        context.connection.sendall(response.encode())
-        return None
+        return response

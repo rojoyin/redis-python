@@ -10,5 +10,4 @@ class Handler(CommandHandler):
 
     def execute(self, parsed: object, context: InnerContext) -> object:
         response = f"${len(parsed[0])}\r\n{parsed[0].decode('utf-8')}\r\n"
-        context.connection.sendall(response.encode())
-        return None
+        return response

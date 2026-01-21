@@ -26,3 +26,6 @@ def read_command(connection: socket.socket) -> tuple[bytes, list[bytes]]:
     args = parsed_command[1:]
     return command, args
 
+
+def encode_response(result: str):
+    return result.encode()

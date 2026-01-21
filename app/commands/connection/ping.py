@@ -9,5 +9,4 @@ class Handler(CommandHandler):
         return None
 
     def execute(self, parsed: object, context: InnerContext) -> object:
-        context.connection.sendall(b"+PONG\r\n")
-        return None
+        return "+PONG\r\n"

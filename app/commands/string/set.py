@@ -28,5 +28,4 @@ class Handler(CommandHandler):
     def execute(self, parsed: object, context: InnerContext) -> object:
         var_name, var_value, ttl_value = parsed
         context.store.set(var_name, var_value, ttl_value)
-        context.connection.sendall(b"+OK\r\n")
-        return None
+        return "+OK\r\n"
