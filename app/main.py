@@ -12,6 +12,7 @@ def handle_connection(connection: socket.socket):
     try:
         remote_name = connection.getpeername()
         print(f"New connection created, remote: {remote_name}")
+        context = InnerContext(connection=connection, store=storage)
         while True:
             data = connection.recv(1024)
 
@@ -36,10 +37,7 @@ def handle_connection(connection: socket.socket):
 
             command = parsed_command[0]
             command_handler = registry.get_command_handler(command)
-            context = InnerContext(connection=connection,store=storage)
             command_handler(parsed_command, context)
-
-
             print(f"Replying to remote: {remote_name}")
     except Exception as e:
         print(f"Thread exception: {e}")
