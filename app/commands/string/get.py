@@ -6,9 +6,7 @@ from app.core.innercontext import InnerContext
 @registry.register(b"GET")
 class Handler(CommandHandler):
     def parse(self, args: list[bytes]) -> object:
-        _, var_name = args
-
-        return var_name
+        return args[0]
 
     def execute(self, parsed: bytes, context: InnerContext) -> object:
         value = context.store.get(parsed)

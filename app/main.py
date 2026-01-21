@@ -36,8 +36,9 @@ def handle_connection(connection: socket.socket):
                 raw_arguments = semi_parsed_arg[0][arg_size+2:]
 
             command = parsed_command[0]
+            args = parsed_command[1:]
             command_handler = registry.get_command_handler(command)
-            command_handler(parsed_command, context)
+            command_handler(args, context)
             print(f"Replying to remote: {remote_name}")
     except Exception as e:
         print(f"Thread exception: {e}")
