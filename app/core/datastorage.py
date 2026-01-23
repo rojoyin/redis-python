@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 class DataStorage:
     data: dict[bytes, bytes] = field(default_factory=dict)
 
-    def set(self, key: bytes, value: bytes, ttl_milliseconds: int | None) -> None:
+    def set(self, key: bytes, value: bytes, ttl_milliseconds: int | None = None) -> None:
         if ttl_milliseconds is not None:
             threading.Timer(ttl_milliseconds, self.data.pop, args=[key]).start()
 
