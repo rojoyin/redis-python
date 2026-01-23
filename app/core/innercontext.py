@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from socket import socket
 
+from app.core.configstorage import ConfigStorage
 from app.core.datastorage import DataStorage
 
 
@@ -8,3 +9,4 @@ from app.core.datastorage import DataStorage
 class InnerContext:
     store: DataStorage
     connection: socket
+    config_store: ConfigStorage
