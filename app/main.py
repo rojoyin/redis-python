@@ -1,19 +1,22 @@
+import argparse
 import socket
 from concurrent.futures import ThreadPoolExecutor
 
 from app.commands import load_commands
 from app.commands.registry import registry
+from app.core.configstorage import ConfigStorage
 from app.core.datastorage import DataStorage
 from app.core.innercontext import InnerContext
 from app.protocol import resp
 
 storage = DataStorage()
+config_storage = ConfigStorage()
 
 def handle_connection(connection: socket.socket):
     try:
         remote_name = connection.getpeername()
         print(f"New connection created, remote: {remote_name}")
-        context = InnerContext(connection=connection, store=storage)
+        context = InnerContext(connection=connection, store=storage, config_store=config_storage)
         while True:
             command, args = resp.read_command(context.connection)
             command_handler = registry.get_command_handler(command)
@@ -30,6 +33,12 @@ def handle_connection(connection: socket.socket):
 def main():
     print("Logs from your program will appear here!")
     load_commands()
+    server_arg_parser = argparse.ArgumentParser()
+    server_arg_parser.add_argument("--dir", type=str)
+    server_arg_parser.add_argument("--dbfilename", type=str)
+    server_args = server_arg_parser.parse_args()
+    config_storage.set(b"dir", server_args.dir)
+    config_storage.set(b"dbfilename", server_args.dbfilename)
     server_socket = socket.create_server(("localhost", 6379), reuse_port=True)
 
     with ThreadPoolExecutor() as executor:
