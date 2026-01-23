@@ -28,17 +28,23 @@ def handle_connection(connection: socket.socket):
     finally:
         connection.close()
 
-
-
-def main():
-    print("Logs from your program will appear here!")
-    load_commands()
+def parse_server_args() -> argparse.Namespace:
     server_arg_parser = argparse.ArgumentParser()
     server_arg_parser.add_argument("--dir", type=str)
     server_arg_parser.add_argument("--dbfilename", type=str)
     server_args = server_arg_parser.parse_args()
+    return server_args
+
+
+def configure_server(server_args: argparse.Namespace) -> None:
     config_storage.set(b"dir", server_args.dir)
     config_storage.set(b"dbfilename", server_args.dbfilename)
+
+def main():
+    print("Logs from your program will appear here!")
+    load_commands()
+    server_args = parse_server_args()
+    configure_server(server_args)
     server_socket = socket.create_server(("localhost", 6379), reuse_port=True)
 
     with ThreadPoolExecutor() as executor:
