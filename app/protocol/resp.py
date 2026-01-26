@@ -40,7 +40,6 @@ def encode_response(result: RespValue) -> bytes:
 
         return b"".join(parts)
     elif isinstance(result, SimpleString):
-        value_to_return = f"+{result.text}{CRLF}"
-        return value_to_return.encode()
+        return b"+" + result.text.encode("utf-8") + CRLF
 
     return b""
