@@ -32,18 +32,16 @@ def read_command(connection: socket.socket) -> tuple[bytes, list[bytes]]:
 
 
 def encode_response(result: RespValue) -> bytes:
-    if isinstance(result, Array):
-        parts: list[bytes] = [b"*" + str(len(result.items)).encode("ascii") + CRLF]
-
-        for item in result.items:
-            parts.append(encode_response(item))
-
-        return b"".join(parts)
-    elif isinstance(result, SimpleString):
-        return b"+" + result.text.encode("utf-8") + CRLF
-    elif isinstance(result, BulkString):
-        return b"$" + str(len(result.data)).encode("utf-8") + CRLF + result.data + CRLF
-    elif isinstance(result, NullBulkString):
-        return b"$-1" + CRLF
-
+    match result:
+        case Array():
+            parts: list[bytes] = [b"*" + str(len(result.items)).encode("ascii") + CRLF]
+            for item in result.items:
+                parts.append(encode_response(item))
+            return b"".join(parts)
+        case SimpleString():
+            return b"+" + result.text.encode("utf-8") + CRLF
+        case BulkString():
+            return b"$" + str(len(result.data)).encode("utf-8") + CRLF + result.data + CRLF
+        case NullBulkString():
+            return b"$-1" + CRLF
     return b""
