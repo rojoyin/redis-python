@@ -1,6 +1,7 @@
 from app.commands.contract import CommandHandler
 from app.commands.registry import registry
 from app.core.innercontext import InnerContext
+from app.protocol.types import NullBulkString, BulkString
 
 
 @registry.register(b"GET")
@@ -11,9 +12,7 @@ class Handler(CommandHandler):
     def execute(self, parsed: bytes, context: InnerContext) -> object:
         value = context.store.get(parsed)
 
-        if value is not None:
-            response = f"${len(value)}\r\n{value.decode('utf-8')}\r\n"
-        else:
-            response = "$-1\r\n"
+        if value is None:
+            return NullBulkString()
 
-        return response
+        return BulkString(value)
