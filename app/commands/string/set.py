@@ -1,6 +1,7 @@
 from app.commands.contract import CommandHandler
 from app.commands.registry import registry
 from app.core.innercontext import InnerContext
+from app.protocol.types import SimpleString
 
 
 @registry.register(b"SET")
@@ -28,4 +29,4 @@ class Handler(CommandHandler):
     def execute(self, parsed: object, context: InnerContext) -> object:
         var_name, var_value, ttl_value = parsed
         context.store.set(var_name, var_value, ttl_value)
-        return "+OK\r\n"
+        return SimpleString("OK")
