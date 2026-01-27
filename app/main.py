@@ -37,8 +37,8 @@ def parse_server_args() -> argparse.Namespace:
 
 
 def configure_server(server_args: argparse.Namespace) -> None:
-    config_storage.set(b"dir", server_args.dir)
-    config_storage.set(b"dbfilename", server_args.dbfilename)
+    config_storage.set(b"dir", server_args.dir.encode("utf-8"))
+    config_storage.set(b"dbfilename", server_args.dbfilename.encode("utf-8"))
 
 def main():
     print("Logs from your program will appear here!")
