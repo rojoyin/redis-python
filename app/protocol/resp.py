@@ -1,6 +1,6 @@
 import socket
 
-from app.protocol.types import RespValue, Array, SimpleString
+from app.protocol.types import RespValue, Array, SimpleString, BulkString
 
 CRLF = b"\r\n"
 
@@ -41,5 +41,7 @@ def encode_response(result: RespValue) -> bytes:
         return b"".join(parts)
     elif isinstance(result, SimpleString):
         return b"+" + result.text.encode("utf-8") + CRLF
+    elif isinstance(result, BulkString):
+        return b"$" + str(len(result.data)).encode("utf-8") + CRLF + result.data + CRLF
 
     return b""
