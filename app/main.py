@@ -1,56 +1,22 @@
-import argparse
-import socket
-from concurrent.futures import ThreadPoolExecutor
-
+from app.bootstrap import parse_server_args, configure_server
 from app.commands import load_commands
-from app.commands.registry import registry
 from app.core.configstorage import ConfigStorage
 from app.core.datastorage import DataStorage
-from app.core.innercontext import InnerContext
-from app.protocol import resp
+from app.server import run
 
-storage = DataStorage()
-config_storage = ConfigStorage()
-
-def handle_connection(connection: socket.socket):
-    try:
-        remote_name = connection.getpeername()
-        print(f"New connection created, remote: {remote_name}")
-        context = InnerContext(connection=connection, store=storage, config_store=config_storage)
-        while True:
-            command, args = resp.read_command(context.connection)
-            command_handler = registry.get_command_handler(command)
-            result = command_handler(args, context)
-            connection.sendall(resp.encode_response(result))
-            print(f"Replying to remote: {remote_name}")
-    except Exception as e:
-        print(f"Thread exception: {e}")
-    finally:
-        connection.close()
-
-def parse_server_args() -> argparse.Namespace:
-    server_arg_parser = argparse.ArgumentParser()
-    server_arg_parser.add_argument("--dir", type=str)
-    server_arg_parser.add_argument("--dbfilename", type=str)
-    server_args = server_arg_parser.parse_args()
-    return server_args
-
-
-def configure_server(server_args: argparse.Namespace) -> None:
-    config_storage.set(b"dir", server_args.dir.encode("utf-8"))
-    config_storage.set(b"dbfilename", server_args.dbfilename.encode("utf-8"))
 
 def main():
     print("Logs from your program will appear here!")
     load_commands()
-    server_args = parse_server_args()
-    configure_server(server_args)
-    server_socket = socket.create_server(("localhost", 6379), reuse_port=True)
 
-    with ThreadPoolExecutor() as executor:
-        while True:
-            connection, _ = server_socket.accept()
-            executor.submit(handle_connection, connection)
+    store = DataStorage()
+    config_store = ConfigStorage()
+
+    args = parse_server_args()
+    configure_server(config_store, args)
+
+    run(host="localhost", port=6379, store=store, config_store=config_store)
+
 
 
 if __name__ == "__main__":
