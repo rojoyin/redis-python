@@ -1,32 +1,59 @@
+from dataclasses import dataclass
+
 from app.commands.contract import CommandHandler
 from app.commands.registry import registry
 from app.core.innercontext import InnerContext
-from app.protocol.types import SimpleString
+from app.protocol.types import SimpleString, Error
+
+MS_FLAG= b"px"
+SEC_FLAG= b"ex"
+
+
+@dataclass
+class VariableMetadata:
+    var_name: bytes
+    var_value: bytes
+    ttl_seconds: float | None = None
 
 
 @registry.register(b"SET")
 class Handler(CommandHandler):
-    def parse(self, args: list[bytes]) -> object:
-        var_name, var_value = args[0], args[1]
-        parsed_command = [v.lower() for v in args]
-        parse_as_milliseconds = False
-        ttl_value = None
+    def parse(self, args: list[bytes]) -> VariableMetadata | Error:
+        parsed_var_data = VariableMetadata(
+            var_name=args[0],
+            var_value=args[1]
+        )
 
-        if len(parsed_command) > 2:
-            if b"px" in parsed_command:
-                ttl_flag_index = parsed_command.index(b"px")
-                parse_as_milliseconds = True
-            elif b"ex" in parsed_command:
-                ttl_flag_index = parsed_command.index(b"ex")
-            else:
-                raise Exception(f"Unsupported option for the SET command")
+        if len(args) < 2:
+            return Error("Incomplete command")
 
-            val = int(parsed_command[ttl_flag_index + 1])
-            ttl_value = val if not parse_as_milliseconds else val / 1000
+        if len(args) == 2:
+            return parsed_var_data
 
-        return var_name, var_value, ttl_value
+        extra_args = [v.lower() for v in args[2:]]
 
-    def execute(self, parsed: object, context: InnerContext) -> object:
-        var_name, var_value, ttl_value = parsed
-        context.store.set(var_name, var_value, ttl_value)
+        if MS_FLAG in extra_args:
+            ttl_flag_index = extra_args.index(MS_FLAG)
+            ttl_value_index = ttl_flag_index + 1
+
+            if ttl_value_index >= len(extra_args):
+                return Error("Missing value for milliseconds")
+
+            parsed_var_data.ttl_seconds = int(ttl_value_index) / 1000
+        elif SEC_FLAG in extra_args:
+            ttl_flag_index = extra_args.index(SEC_FLAG)
+            ttl_value_index = ttl_flag_index + 1
+
+            if ttl_value_index >= len(extra_args):
+                return Error("Missing value for seconds")
+
+            parsed_var_data.ttl_seconds = int(extra_args[ttl_value_index])
+
+        return parsed_var_data
+
+    def execute(self, parsed: VariableMetadata, context: InnerContext) -> object:
+        if isinstance(parsed, Error):
+            return parsed
+
+        context.store.set(parsed.var_name, parsed.var_value, parsed.ttl_seconds)
         return SimpleString("OK")
