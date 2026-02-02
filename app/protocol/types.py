@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import TypeAlias, Union
 
 @dataclass
@@ -23,7 +23,7 @@ class NullBulkString:
 
 @dataclass
 class Array:
-    items: list["RespValue"]
+    items: list["RespValue"] = field(default_factory=list)
 
 
 RespValue: TypeAlias = Union[
