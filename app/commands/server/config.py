@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 
-from app.commands.registry import registry
 from app.commands.contract import CommandHandler
+from app.commands.registry import registry
 from app.core.innercontext import InnerContext
-from app.protocol.types import BulkString, Array, RespValue, Error, SimpleString
+from app.protocol.types import BulkString, Array, RespValue, Error
 
 
 @dataclass
@@ -25,9 +25,7 @@ class Handler(CommandHandler):
             config_parameter = context.config_store.get(parsed.parameter_name)
 
             if not config_parameter:
-                result_string = ""
-                result = [SimpleString(result_string)]
-                return Array(result)
+                return Array()
 
             result = Array(
                 [
