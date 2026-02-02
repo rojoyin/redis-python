@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from app.protocol.types import RespValue
+from app.protocol.types import RespValue, Error
 
 
 class CommandHandler(ABC):
@@ -13,4 +13,8 @@ class CommandHandler(ABC):
 
     def __call__(self, args: list[bytes], context: "InnerContext") -> RespValue:
         parsed = self.parse(args)
+
+        if isinstance(parsed, Error):
+            return parsed
+
         return self.execute(parsed, context)
