@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from app.commands.contract import CommandHandler
 from app.commands.registry import registry
 from app.core.innercontext import InnerContext
-from app.protocol.types import SimpleString, Error
+from app.protocol.types import SimpleString, Error, RespValue
 
 MS_FLAG= b"px"
 SEC_FLAG= b"ex"
@@ -19,13 +19,13 @@ class VariableMetadata:
 @registry.register(b"SET")
 class Handler(CommandHandler):
     def parse(self, args: list[bytes]) -> VariableMetadata | Error:
+        if len(args) < 2:
+            return Error("Incomplete command")
+
         parsed_var_data = VariableMetadata(
             var_name=args[0],
             var_value=args[1]
         )
-
-        if len(args) < 2:
-            return Error("Incomplete command")
 
         if len(args) == 2:
             return parsed_var_data
@@ -51,9 +51,6 @@ class Handler(CommandHandler):
 
         return parsed_var_data
 
-    def execute(self, parsed: VariableMetadata, context: InnerContext) -> object:
-        if isinstance(parsed, Error):
-            return parsed
-
+    def execute(self, parsed: VariableMetadata, context: InnerContext) -> RespValue:
         context.store.set(parsed.var_name, parsed.var_value, parsed.ttl_seconds)
         return SimpleString("OK")
