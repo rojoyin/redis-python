@@ -18,3 +18,9 @@ class DataStorage:
 
     def delete_key(self, key: bytes) -> None:
         del self.data[key]
+
+    def keys(self, pattern: bytes) -> list[bytes]:
+        if pattern == b"*":
+            return list(self.data.keys())
+
+        return []
