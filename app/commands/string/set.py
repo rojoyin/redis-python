@@ -39,7 +39,7 @@ class Handler(CommandHandler):
             if ttl_value_index >= len(extra_args):
                 return Error("Missing value for milliseconds")
 
-            parsed_var_data.ttl_seconds = int(ttl_value_index) / 1000
+            parsed_var_data.ttl_seconds = int(extra_args[ttl_value_index]) / 1000.0
         elif SEC_FLAG in extra_args:
             ttl_flag_index = extra_args.index(SEC_FLAG)
             ttl_value_index = ttl_flag_index + 1
