@@ -24,6 +24,10 @@ def configure_server(config_storage: ConfigStorage, args: argparse.Namespace) ->
 def load_rdb_data(store: DataStorage, config_store: ConfigStorage, rdb_parser: RDBParser) -> None:
     dir_path = config_store.get(b"dir")
     dbfilename = config_store.get(b"dbfilename")
+
+    if not dir_path or not dbfilename:
+        return
+
     rdb_filepath = Path(dir_path.decode()) / dbfilename.decode()
 
     if not rdb_filepath.exists():
