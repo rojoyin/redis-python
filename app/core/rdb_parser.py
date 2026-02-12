@@ -1,3 +1,16 @@
+from pathlib import Path
+
+
+from dataclasses import dataclass
+
+
+@dataclass
+class RDBEntry:
+    key: bytes
+    value: bytes
+    expire_ts: int
+
+
 class RDBParser:
     code_metadata = b"\xfa"
     code_db_size = b"\xfb"
@@ -6,11 +19,11 @@ class RDBParser:
     code_expiretime_secs = b"\xfd"
     code_eof = b"\xff"
 
-    def parse_file(self, rdb_file_path) -> dict[bytes, bytes]:
+    def parse_file(self, rdb_file_path: Path) -> list[RDBEntry]:
         if not rdb_file_path:
-            return {}
+            return []
 
-        data = {}
+        data = []
         with open(rdb_file_path, "rb") as f:
 
             magic_string = f.read(9)
@@ -43,15 +56,27 @@ class RDBParser:
                     print(f"Database size: {db_size} keys, {expire_size} with expiry")
                     
                     for _ in range(db_size):
-                        value_type = f.read(1)
+                        next_code = f.read(1)
+                        expire_ts = None
+
+                        if next_code == self.code_expiretime_ms:
+                            expire_ts = int.from_bytes(f.read(8), "little")
+                            value_type = f.read(1)
+
+                        elif next_code == self.code_expiretime_secs:
+                            expire_ts = int.from_bytes(f.read(4), "little") * 1000
+                            value_type = f.read(1)
+
+                        else:
+                            value_type = next_code
                         
                         if value_type == b'\x00':
                             key_length = _parse_length(f)
                             key = f.read(key_length)
                             value_length = _parse_length(f)
                             value = f.read(value_length)
-                            data[key] = value
-                            print(f"Loaded key: {key} = {value}")
+                            data.append(RDBEntry(key, value, expire_ts))
+                            print(f"Loaded key: {key} = {value}, expiry_ms: {expire_ts}")
                         else:
                             print(f"Unsupported value type: {value_type.hex()}")
                             raise NotImplementedError(f"Value type {value_type.hex()} not supported")
