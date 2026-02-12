@@ -13,7 +13,7 @@ SEC_FLAG= b"ex"
 class VariableMetadata:
     var_name: bytes
     var_value: bytes
-    ttl_seconds: float | None = None
+    ttl_milliseconds: int | None = None
 
 
 @registry.register(b"SET")
@@ -39,7 +39,7 @@ class Handler(CommandHandler):
             if ttl_value_index >= len(extra_args):
                 return Error("Missing value for milliseconds")
 
-            parsed_var_data.ttl_seconds = int(extra_args[ttl_value_index]) / 1000.0
+            parsed_var_data.ttl_milliseconds = int(extra_args[ttl_value_index])
         elif SEC_FLAG in extra_args:
             ttl_flag_index = extra_args.index(SEC_FLAG)
             ttl_value_index = ttl_flag_index + 1
@@ -47,10 +47,10 @@ class Handler(CommandHandler):
             if ttl_value_index >= len(extra_args):
                 return Error("Missing value for seconds")
 
-            parsed_var_data.ttl_seconds = int(extra_args[ttl_value_index])
+            parsed_var_data.ttl_milliseconds = int(extra_args[ttl_value_index]) * 1000
 
         return parsed_var_data
 
     def execute(self, parsed: VariableMetadata, context: InnerContext) -> RespValue:
-        context.store.set(parsed.var_name, parsed.var_value, parsed.ttl_seconds)
+        context.store.set_with_ttl(parsed.var_name, parsed.var_value, parsed.ttl_milliseconds)
         return SimpleString("OK")
