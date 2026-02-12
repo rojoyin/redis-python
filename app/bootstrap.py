@@ -35,5 +35,6 @@ def load_rdb_data(store: DataStorage, config_store: ConfigStorage, rdb_parser: R
         return
 
     parsed_data = rdb_parser.parse_file(rdb_filepath)
-    for key, value in parsed_data.items():
-        store.set(key, value)
+
+    for entry in parsed_data:
+        store.set(entry.key, entry.value, entry.expire_ts)
