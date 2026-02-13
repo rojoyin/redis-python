@@ -18,7 +18,7 @@ def main():
     configure_server(config_store, args)
     load_rdb_data(store, config_store, rdb_parser)
 
-    run(host="localhost", port=6379, store=store, config_store=config_store)
+    run(store=store, config_store=config_store)
 
 
 if __name__ == "__main__":
