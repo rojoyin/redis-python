@@ -10,7 +10,10 @@ def parse_server_args(argv: list[str] | None  = None) -> argparse.Namespace:
     server_arg_parser = argparse.ArgumentParser()
     server_arg_parser.add_argument("--dir", type=str)
     server_arg_parser.add_argument("--dbfilename", type=str)
+    server_arg_parser.add_argument("--host", type=str, default="localhost")
+    server_arg_parser.add_argument("--port", type=int, default=6379)
     return server_arg_parser.parse_args(argv)
+
 
 def configure_server(config_storage: ConfigStorage, args: argparse.Namespace) -> None:
     if args.dir is not None:
@@ -19,6 +22,12 @@ def configure_server(config_storage: ConfigStorage, args: argparse.Namespace) ->
     if args.dbfilename is not None:
         print(f"Set {args.dbfilename=} configuration")
         config_storage.set(b"dbfilename", args.dbfilename.encode("utf-8"))
+
+    print(f"Set {args.host=} configuration")
+    config_storage.set(b"host", args.host)
+
+    print(f"Set {args.port=} configuration")
+    config_storage.set(b"port", args.port)
 
 
 def load_rdb_data(store: DataStorage, config_store: ConfigStorage, rdb_parser: RDBParser) -> None:
