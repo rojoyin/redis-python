@@ -26,13 +26,10 @@ def handle_connection(connection: socket.socket, store: DataStorage, config_stor
     finally:
         connection.close()
 
-def run(
-        host: str,
-        port: int,
-        store: DataStorage,
-        config_store: ConfigStorage,
-    ) -> None:
 
+def run(*, store: DataStorage, config_store: ConfigStorage) -> None:
+    host = config_store.get(b"host")
+    port = config_store.get(b"port")
     server_socket = socket.create_server((host, port), reuse_port=True)
 
     with ThreadPoolExecutor() as executor:
