@@ -19,10 +19,11 @@ class _CommandRegistry:
             if not issubclass(handler_class, CommandHandler):
                 raise TypeError(f"Handler {handler_class} is not of type CommandHandler")
 
-            if self._handlers[command_name]:
-                raise KeyError(f"Handler for {command_name} already registered")
+            standard_command_name = command_name.lower()
+            if self._handlers[standard_command_name]:
+                raise KeyError(f"Handler for {standard_command_name} already registered")
 
-            self._handlers[command_name] = handler_class()
+            self._handlers[standard_command_name] = handler_class()
             return handler_class
 
         return wrapper
