@@ -26,7 +26,7 @@ def read_command(connection: socket.socket) -> tuple[bytes, list[bytes]]:
         parsed_command.append(arg_value)
         raw_arguments = semi_parsed_arg[0][arg_size + 2:]
 
-    command = parsed_command[0]
+    command = parsed_command[0].upper()
     args = parsed_command[1:]
     return command, args
 
