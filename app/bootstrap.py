@@ -12,6 +12,7 @@ def parse_server_args(argv: list[str] | None  = None) -> argparse.Namespace:
     server_arg_parser.add_argument("--dbfilename", type=str)
     server_arg_parser.add_argument("--host", type=str, default="localhost")
     server_arg_parser.add_argument("--port", type=int, default=6379)
+    server_arg_parser.add_argument("--replicaof", type=str)
     return server_arg_parser.parse_args(argv)
 
 
@@ -22,6 +23,9 @@ def configure_server(config_storage: ConfigStorage, args: argparse.Namespace) ->
     if args.dbfilename is not None:
         print(f"Set {args.dbfilename=} configuration")
         config_storage.set(b"dbfilename", args.dbfilename.encode("utf-8"))
+    if args.replicaof is not None:
+        print(f"Set {args.replicaof=} configuration")
+        config_storage.set(b"replicaof", args.replicaof.encode("utf-8"))
 
     print(f"Set {args.host=} configuration")
     config_storage.set(b"host", args.host)
