@@ -1,4 +1,6 @@
 import argparse
+import random
+import string
 from pathlib import Path
 
 from app.core.configstorage import ConfigStorage
@@ -16,6 +18,10 @@ def parse_server_args(argv: list[str] | None  = None) -> argparse.Namespace:
     return server_arg_parser.parse_args(argv)
 
 
+def _generate_replid(size: int = 40) -> bytes:
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=size)).encode(encoding="ascii")
+
+
 def configure_server(config_storage: ConfigStorage, args: argparse.Namespace) -> None:
     if args.dir is not None:
         print(f"Set {args.dir=} configuration")
@@ -26,6 +32,13 @@ def configure_server(config_storage: ConfigStorage, args: argparse.Namespace) ->
     if args.replicaof is not None:
         print(f"Set {args.replicaof=} configuration")
         config_storage.set(b"replicaof", args.replicaof.encode("utf-8"))
+        config_storage.set(b"role", b"slave")
+    if args.replicaof is None:
+        master_replid = _generate_replid(size=40)
+        config_storage.set(b"role", b"master")
+        config_storage.set(b"master_replid", master_replid)
+        config_storage.set(b"master_repl_offset", b"0")
+        print(f"Set {master_replid=}")
 
     print(f"Set {args.host=} configuration")
     config_storage.set(b"host", args.host)
