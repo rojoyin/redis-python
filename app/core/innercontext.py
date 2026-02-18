@@ -10,3 +10,4 @@ class InnerContext:
     store: DataStorage
     connection: socket
     config_store: ConfigStorage
+    connection_to_main_server: socket | None
