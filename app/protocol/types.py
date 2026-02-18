@@ -2,38 +2,35 @@ from dataclasses import dataclass, field
 from typing import TypeAlias, Union
 
 
-@dataclass
+@dataclass(slots=True)
 class SimpleString:
     text: str
 
 
-@dataclass
+@dataclass(slots=True)
 class BulkString:
     data: bytes
 
     def __init__(self, data: bytes | str):
-        if isinstance(data, str):
-            self.data = data.encode("utf-8")
-        else:
-            self.data = data
+        self.data = data.encode("utf-8") if isinstance(data, str) else data
 
 
-@dataclass
+@dataclass(slots=True)
 class Integer:
     value: int
 
 
-@dataclass
+@dataclass(slots=True)
 class Error:
     message: str
 
 
-@dataclass
+@dataclass(slots=True)
 class NullBulkString:
     """Represents RESP Null Bulk String: $-1"""
 
 
-@dataclass
+@dataclass(slots=True)
 class Array:
     items: list["RespValue"] = field(default_factory=list)
 
