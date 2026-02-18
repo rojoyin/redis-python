@@ -38,18 +38,18 @@ def handle_client_connection(
 
 
 def run(*, store: DataStorage, config_store: ConfigStorage) -> None:
-    host = config_store.get(b"host")
-    port = config_store.get(b"port")
+    host = config_store.get("host")
+    port = config_store.get("port")
     server_socket = socket.create_server((host, port), reuse_port=True)
-    main_server_data = config_store.get(b"replicaof")
+    main_server_data = config_store.get("replicaof")
     connection_to_main_server = None
 
     if main_server_data:
-        main_server_address, main_server_port = main_server_data.split(b" ")
+        main_server_address, main_server_port = main_server_data.split(" ")
         connection_to_main_server = socket.create_connection(
             (
-                main_server_address.decode("utf-8"),
-                int(main_server_port.decode("utf-8"))
+                main_server_address,
+                int(main_server_port)
             )
         )
 

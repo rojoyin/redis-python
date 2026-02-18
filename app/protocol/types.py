@@ -33,4 +33,5 @@ RespValue: TypeAlias = Union[
     Error,
     NullBulkString,
     Array,
+    None,
 ]

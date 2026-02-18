@@ -9,7 +9,7 @@ from app.protocol.types import BulkString, Array, RespValue, Error
 @dataclass
 class ConfigPayload:
     subcommand: bytes
-    parameter_name: bytes | None = None
+    parameter_name: str | None = None
 
 @registry.register(B"CONFIG")
 class Handler(CommandHandler):
@@ -17,11 +17,11 @@ class Handler(CommandHandler):
         if not args or len(args) < 2:
             return Error("Command syntax error")
 
-        return ConfigPayload(subcommand=args[0],parameter_name=args[1])
+        return ConfigPayload(subcommand=args[0],parameter_name=args[1].decode("utf-8"))
 
     def execute(self, parsed: ConfigPayload, context: InnerContext) -> RespValue:
 
-        if parsed.subcommand == B"GET":
+        if parsed.subcommand.lower() == B"get":
             config_parameter = context.config_store.get(parsed.parameter_name)
 
             if not config_parameter:
@@ -29,8 +29,8 @@ class Handler(CommandHandler):
 
             result = Array(
                 [
-                    BulkString(parsed.parameter_name),
-                    BulkString(config_parameter)
+                    BulkString(parsed.parameter_name.encode("utf-8")),
+                    BulkString(config_parameter.encode("utf-8"))
                 ]
             )
             return result

@@ -18,20 +18,20 @@ class Handler(CommandHandler):
         return InfoPayload(subcommand=args[0]) if args else InfoPayload()
 
     def execute(self, parsed: InfoPayload, context: InnerContext) -> RespValue:
-        role = context.config_store.get(b"role")
-        server_replication_info = [b"role:" + role]
+        role = context.config_store.get("role")
+        server_replication_info = ["role:" + role]
 
-        if role == b"master":
-            replid = context.config_store.get(b"master_replid")
-            offset = context.config_store.get(b"master_repl_offset")
+        if role == "master":
+            replid = context.config_store.get("master_replid")
+            offset = context.config_store.get("master_repl_offset")
             server_replication_info.extend([
-                b"master_replid:" + replid,
-                b"master_repl_offset:" + offset
+                f"master_replid:{replid}",
+                f"master_repl_offset:{offset}"
             ])
 
-        server_info = [b"\n".join(server_replication_info)]
+        server_info = ["\n".join(server_replication_info)]
 
         if parsed.subcommand == b"replication":
-            return BulkString(b"\n".join(server_replication_info))
+            return BulkString("\n".join(server_replication_info).encode("utf-8"))
 
-        return BulkString(b"\n".join(server_info))
+        return BulkString("\n".join(server_info).encode("utf-8"))
