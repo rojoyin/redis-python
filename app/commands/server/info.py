@@ -32,6 +32,6 @@ class Handler(CommandHandler):
         server_info = ["\n".join(server_replication_info)]
 
         if parsed.subcommand == b"replication":
-            return BulkString("\n".join(server_replication_info).encode("utf-8"))
+            return BulkString("\n".join(server_replication_info))
 
-        return BulkString("\n".join(server_info).encode("utf-8"))
+        return BulkString("\n".join(server_info))

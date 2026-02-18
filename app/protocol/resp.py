@@ -41,7 +41,7 @@ def encode_response(result: RespValue) -> bytes:
         case SimpleString():
             return b"+" + result.text.encode("utf-8") + CRLF
         case BulkString():
-            return b"$" + str(len(result.data)).encode("utf-8") + CRLF + result.data + CRLF
+            return b"$" + str(len(result.data)).encode("ascii") + CRLF + result.data + CRLF
         case NullBulkString():
             return b"$-1" + CRLF
         case Error():

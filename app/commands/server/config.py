@@ -29,8 +29,8 @@ class Handler(CommandHandler):
 
             result = Array(
                 [
-                    BulkString(parsed.parameter_name.encode("utf-8")),
-                    BulkString(config_parameter.encode("utf-8"))
+                    BulkString(parsed.parameter_name),
+                    BulkString(config_parameter)
                 ]
             )
             return result
