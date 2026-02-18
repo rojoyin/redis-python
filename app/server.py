@@ -8,7 +8,7 @@ from app.core.innercontext import InnerContext
 from app.protocol import resp
 
 
-def handle_connection(
+def handle_client_connection(
     connection_to_client: socket.socket,
     store: DataStorage,
     config_store: ConfigStorage,
@@ -60,4 +60,10 @@ def run(*, store: DataStorage, config_store: ConfigStorage) -> None:
     with ThreadPoolExecutor() as executor:
         while True:
             connection_to_client, _ = server_socket.accept()
-            executor.submit(handle_connection, connection_to_client, store, config_store, connection_to_main_server)
+            executor.submit(
+                handle_client_connection,
+                connection_to_client,
+                store,
+                config_store,
+                connection_to_main_server,
+            )
