@@ -9,32 +9,32 @@ from app.protocol import resp
 
 
 def handle_connection(
-    connection: socket.socket,
+    connection_to_client: socket.socket,
     store: DataStorage,
     config_store: ConfigStorage,
     connection_to_main_server: socket.socket | None,
 ):
     try:
-        remote_name = connection.getpeername()
+        remote_name = connection_to_client.getpeername()
         print(f"New connection created, remote: {remote_name}")
         context = InnerContext(
-            connection=connection,
+            connection_to_client=connection_to_client,
             store=store,
             config_store=config_store,
             connection_to_main_server=connection_to_main_server
         )
 
         while True:
-            command, args = resp.read_command(context.connection)
+            command, args = resp.read_command(context.connection_to_client)
             command_handler = registry.get_command_handler(command)
             result = command_handler(args, context)
-            connection.sendall(resp.encode_response(result))
+            connection_to_client.sendall(resp.encode_response(result))
             print(f"Replying to remote: {remote_name}")
 
     except Exception as e:
         print(f"Thread exception: {e}")
     finally:
-        connection.close()
+        connection_to_client.close()
 
 
 def run(*, store: DataStorage, config_store: ConfigStorage) -> None:

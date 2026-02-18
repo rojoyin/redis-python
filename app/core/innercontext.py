@@ -8,6 +8,6 @@ from app.core.datastorage import DataStorage
 @dataclass
 class InnerContext:
     store: DataStorage
-    connection: socket
+    connection_to_client: socket
     config_store: ConfigStorage
     connection_to_main_server: socket | None
