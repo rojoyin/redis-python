@@ -6,13 +6,14 @@ from app.core.configstorage import ConfigStorage
 from app.core.datastorage import DataStorage
 from app.core.innercontext import InnerContext
 from app.protocol import resp
+from app.replication.client import ReplicationClient
 
 
 def handle_client_connection(
     connection_to_client: socket.socket,
     store: DataStorage,
     config_store: ConfigStorage,
-    connection_to_main_server: socket.socket | None,
+    replication_client: ReplicationClient | None,
 ):
     try:
         remote_name = connection_to_client.getpeername()
@@ -21,7 +22,7 @@ def handle_client_connection(
             connection_to_client=connection_to_client,
             store=store,
             config_store=config_store,
-            connection_to_main_server=connection_to_main_server
+            replication_client=replication_client
         )
 
         while True:
@@ -42,20 +43,11 @@ def run(*, store: DataStorage, config_store: ConfigStorage) -> None:
     port = config_store.get("port")
     server_socket = socket.create_server((host, port), reuse_port=True)
     main_server_data = config_store.get("replicaof")
-    connection_to_main_server = None
 
+    replication_client = None
     if main_server_data:
-        main_server_address, main_server_port = main_server_data.split(" ")
-        connection_to_main_server = socket.create_connection(
-            (
-                main_server_address,
-                int(main_server_port)
-            )
-        )
-
-        ping_command = "*1\r\n$4\r\nPING\r\n"
-        connection_to_main_server.sendall(ping_command.encode())
-
+        replication_client = ReplicationClient(main_server_data)
+        replication_client.start()
 
     with ThreadPoolExecutor() as executor:
         while True:
@@ -65,5 +57,5 @@ def run(*, store: DataStorage, config_store: ConfigStorage) -> None:
                 connection_to_client,
                 store,
                 config_store,
-                connection_to_main_server,
+                replication_client,
             )
